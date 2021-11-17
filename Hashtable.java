@@ -31,15 +31,20 @@ public class Hashtable<K, V> {
      *return null if no such key exists in the table
      **/
     public V get(K key) {
-	//TO BE IMPLEMENTED
         int hash = key.hashCode();
-        hash += table.length; // make sure hash is positive
-        while (table[hash%table.length] != null) {
-                if (table[hash%table.length] == key) {
-                        return (V) table[hash%table.length].value();
-                hash ++;
+        int index = hash % m;
+        if (index < 0) { // Make sure hashing doesn't result in negative index
+            index += m;
         }
-        return null;
+
+        while (!table[index % m].key().equals(key) || table[index % m] == null) {
+                index ++;
+        }
+        if (table[index % m] == null) {
+            return null;
+        } else {
+            return (V) table[index % m].value();
+        }
     }
 
     /**
@@ -48,10 +53,33 @@ public class Hashtable<K, V> {
      *resize if necessary
      **/
     public void put(K key, V value) {
-        //TO BE IMPLEMENTED
         int hash = key.hashCode();
-        // mod first then add length
-        hash += table.length;
+        int index = hash % m;
+        if (index < 0) { // make sure hashing doesn't result in negative index
+            index += m;
+        }
+
+        while (!(table[index % m] == null || 
+        table[index % m].key().equals(key) && !table[index % m].removed())) { // Iterate until null or if key is found and not removed
+            index ++;
+        }
+        if (table[index % m] == null) { // Never put into a removed spot.
+            table[index % m] = new Pair(key, value);
+            n++;
+            if (n > m*MAX_ALPHA) { // Resize and rehash the array.
+                Pair[] oldTable = table;
+                Pair[] table = new Pair[nextPrime(2*m)];
+                m = table.length;
+                n = 0;
+                for (Pair element: oldTable) {
+                    if (element != null && !element.removed()) {
+                        this.put((K) element.key(), (V) element.value());
+                    }
+                }
+            }
+        } else {
+            table[index % m].setVal(value);
+        }
     }
 
     /**
@@ -62,7 +90,34 @@ public class Hashtable<K, V> {
      *Also, resize the table if necessary.
      **/
     public V remove(K key) {
-	//TO BE IMPLEMENTED
+        int hash = key.hashCode();
+        int index = hash % m;
+        if (index < 0) { // Make sure hashing doesn't result in negative index
+            index += m;
+        }
+
+        while (!(table[index % m] == null || 
+        table[index % m].key().equals(key) && !table[index % m].removed())) { // Iterate until null or if key is found and not removed
+            index ++;
+        }
+        if (table[index % m] == null) {
+            return null;
+        } else {
+            V val = (V) table[index % m].value();
+            n--;
+            if (n < m*MIN_ALPHA && m/2 >= CAP) { // Resize and rehash the array.
+                Pair[] oldTable = table;
+                Pair[] table = new Pair[nextPrime(m/2)];
+                m = table.length;
+                n = 0;
+                for (Pair element: oldTable) {
+                    if (element != null && !element.removed()) {
+                        this.put((K) element.key(), (V) element.value());
+                    }
+                }
+            }
+            return val;
+        }
     }
 
     /**
