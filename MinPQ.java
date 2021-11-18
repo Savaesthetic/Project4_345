@@ -2,6 +2,8 @@ public class MinPQ<T extends Comparable<T>> {
     private T[] array;//the array-based heap
     private int nextOpen;//indicates the next open index in the array
     private final int CAP;//the initial capacity of the array
+    private int size;
+    private int numElements;
 
     /***
      *constructor: constructs a new 
@@ -11,6 +13,8 @@ public class MinPQ<T extends Comparable<T>> {
 	this.CAP = 10;
 	this.array = (T[]) new Comparable[CAP];
 	this.nextOpen = 0;
+    this.size = 10;
+    this.numElements = 0;
     }
 
     /**
@@ -21,6 +25,8 @@ public class MinPQ<T extends Comparable<T>> {
 	this.CAP = cap;
 	this.array = (T[]) new Comparable[CAP];
 	this.nextOpen = 0;
+    this.size = cap;
+    this.numElements = 0;
     }
 
     /***
@@ -29,7 +35,23 @@ public class MinPQ<T extends Comparable<T>> {
      *resize the array to be twice as large
      ***/
     public void insert(T item) {
-	//TO BE IMPLEMENTED
+	    if (this.size == this.numElements - 1) {
+            // Create new array for size*2 and populate it with old values
+            T[] newArr = (T[]) new Comparable[this.size * 2];
+            for (int i = 1; i < this.size; i++) {
+                newArr[i] = this.array[i];
+            }
+            
+            this.array = newArr;
+            this.size = newArr.length;
+            this.array[numElements + 1] = item;
+            this.swim(numElements + 1);
+            numElements++;
+        } else {
+            this.array[numElements + 1] = item;
+            this.swim(numElements + 1);
+            numElements++;
+        }
     }
 
     /***
@@ -40,7 +62,7 @@ public class MinPQ<T extends Comparable<T>> {
      *then resize the array to half its size.
      ***/
     public T delMin() throws EmptyQueueException {
-	//TO BE IMPLEMENTED
+	    // TODO Deal with this
     }
 
     /***
@@ -48,7 +70,11 @@ public class MinPQ<T extends Comparable<T>> {
      *throw EmptyQueueException if the PQ is empty
      ***/
     public T getMin() throws EmptyQueueException {
-	//TO BE IMPLEMENTED
+	    if (this.isEmpty()) {
+            throw new EmptyQueueException();
+        } else {
+            return array[1];
+        }
     }
 
     /***
@@ -56,7 +82,7 @@ public class MinPQ<T extends Comparable<T>> {
      *the PQ
      ***/
     public int size() {
-	//TO BE IMPLEMENTED
+	    return numElements;
     }
 
     /***
@@ -64,7 +90,7 @@ public class MinPQ<T extends Comparable<T>> {
      *otherwise
      ***/
     public boolean isEmpty() {
-	//TO BE IMPLEMENTED
+	    return numElements == 0;
     }
 
     /***
@@ -75,6 +101,25 @@ public class MinPQ<T extends Comparable<T>> {
      ***/
     public T[] getArray() {
 	return this.array;
+    }
+
+    private void swim(int index) {
+        if (this.array[index/2].compareTo(array[index]) > 0) {
+            T temp = this.array[index/2];
+            this.array[index/2] = this.array[index];
+            this.array[index] = temp;
+            this.swim(index/2);
+        }
+    }
+
+    private void sink(int index) {
+        int childIndex = this.array[index*2].compareTo(this.array[(index*2) + 1]) > 0 ? (index*2) + 1 : index*2; // Does it matter which child we swap with if equal?
+        if (this.array[index].compareTo(array[childIndex]) > 0) {
+            T temp = this.array[index];
+            this.array[index] = this.array[childIndex];
+            this.array[childIndex] = temp;
+            this.sink(childIndex);
+        }
     }
 }
     

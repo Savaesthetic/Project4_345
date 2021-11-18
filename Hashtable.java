@@ -37,7 +37,8 @@ public class Hashtable<K, V> {
             index += m;
         }
 
-        while (!table[index % m].key().equals(key) || table[index % m] == null) {
+        while (!(table[index % m] == null || 
+        table[index % m].key().equals(key) && !table[index % m].removed())) {
                 index ++;
         }
         if (table[index % m] == null) {
@@ -52,7 +53,7 @@ public class Hashtable<K, V> {
      *if the key is already in the table, update the value;
      *resize if necessary
      **/
-    public void put(K key, V value) {
+    public void put(K key, V value) { // error in hashtable.get() test for update
         int hash = key.hashCode();
         int index = hash % m;
         if (index < 0) { // make sure hashing doesn't result in negative index
@@ -66,9 +67,9 @@ public class Hashtable<K, V> {
         if (table[index % m] == null) { // Never put into a removed spot.
             table[index % m] = new Pair(key, value);
             n++;
-            if (n > m*MAX_ALPHA) { // Resize and rehash the array.
+            if ((double) n > m*MAX_ALPHA) { // Resize and rehash the array.
                 Pair[] oldTable = table;
-                Pair[] table = new Pair[nextPrime(2*m)];
+                this.table = new Pair[nextPrime(2*m)];
                 m = table.length;
                 n = 0;
                 for (Pair element: oldTable) {
@@ -104,10 +105,11 @@ public class Hashtable<K, V> {
             return null;
         } else {
             V val = (V) table[index % m].value();
+            table[index % m].remove();
             n--;
-            if (n < m*MIN_ALPHA && m/2 >= CAP) { // Resize and rehash the array.
+            if ((double) n < m*MIN_ALPHA && m/2 >= CAP) { // Resize and rehash the array.
                 Pair[] oldTable = table;
-                Pair[] table = new Pair[nextPrime(m/2)];
+                this.table = new Pair[nextPrime(m/2)];
                 m = table.length;
                 n = 0;
                 for (Pair element: oldTable) {
