@@ -137,6 +137,11 @@ public class Hashtable<K, V> {
 	return table;
     }
 
+    // My own method for getting table since I can't sue getArray.
+    public Pair<K, V>[] getTable() {
+        return this.table;
+    }
+
     /**
      *This method can be used to get the next prime
      *p that is greater than or equal to num. Use this
