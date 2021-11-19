@@ -64,7 +64,17 @@ public class MinPQ<T extends Comparable<T>> {
         } else {
             T val = this.array[0];
             this.array[0] = this.array[nextOpen-1];
+            this.array[nextOpen-1] = null;
+            nextOpen--;
             sink(0);
+            if (((double)this.nextOpen <= ((double) this.size)*.25) && (this.size/2 >= this.CAP)) {
+                T[] newArr = (T[]) new Comparable[this.size/2];
+                this.size = this.size/2;
+                for (int i = 0; i < this.size; i++) {
+                    newArr[i] = this.array[i];
+                }
+                this.array = newArr;
+            }
             return val;
         }
     }
@@ -117,7 +127,23 @@ public class MinPQ<T extends Comparable<T>> {
     }
 
     private void sink(int index) {
-        int childIndex = this.array[(index*2)+1].compareTo(this.array[(index*2) + 2]) > 0 ? (index*2)+2 : (index*2)+1; // Does it matter which child we swap with if equal?
+        int childIndex;
+        if ((index*2)+1 >= this.size) {
+            return; // If first is out of bounds both are out of bounds
+        } else if ((index*2)+2 >= this.size) {
+            if (this.array[(index*2)+1] == null) {
+                return;
+            }
+            childIndex = (index*2)+1;
+        } else {
+            if (this.array[(index*2)+1] == null) {
+                return; // If first is null both are null
+            } else if (this.array[(index*2)+2] == null) {
+                childIndex = (index*2)+1;
+            } else {
+                childIndex = this.array[(index*2)+1].compareTo(this.array[(index*2) + 2]) > 0 ? (index*2)+2 : (index*2)+1; // Does it matter which child we swap with if equal?
+            }
+        }
         if (this.array[index].compareTo(array[childIndex]) > 0) {
             T temp = this.array[index];
             this.array[index] = this.array[childIndex];

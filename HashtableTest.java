@@ -54,7 +54,7 @@ public class HashtableTest {
 	table.put(s, 100);
 	map.put(s, 100);
 	act = table.get(s);
-	exp = table.get(s);
+	exp = map.get(s);
 	if(act.equals(exp))
 	    score += 1.0;//score = 6.0
 	else
