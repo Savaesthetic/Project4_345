@@ -139,7 +139,14 @@ public class Hashtable<K, V> {
 
     // My own method for getting table since I can't sue getArray.
     public Pair<K, V>[] getTable() {
-        return this.table;
+        Pair[] result = new Pair[this.n];
+        int i = 0;
+        for (Pair element : this.table) {
+            if (element != null && !element.removed()) {
+                result[i++] = element;
+            }
+        }
+        return result;
     }
 
     /**
